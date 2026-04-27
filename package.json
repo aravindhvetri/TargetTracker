@@ -9,7 +9,8 @@
   "scripts": {
     "build": "gulp bundle",
     "clean": "gulp clean",
-    "test": "gulp test"
+    "test": "gulp test",
+    "serve": "gulp bundle --custom-serve --max_old_space_size=4096 && fast-serve"
   },
   "dependencies": {
     "tslib": "2.3.1",
@@ -21,7 +22,19 @@
     "@microsoft/sp-property-pane": "1.18.2",
     "@microsoft/sp-webpart-base": "1.18.2",
     "@microsoft/sp-lodash-subset": "1.18.2",
-    "@microsoft/sp-office-ui-fabric-core": "1.18.2"
+    "@microsoft/sp-office-ui-fabric-core": "1.18.2",
+    "@pnp/pnpjs": "^2.15.0",
+    "@pnp/sp": "^2.15.0",
+    "@pnp/spfx-controls-react": "^3.18.0",
+    "@reduxjs/toolkit": "^2.6.1",
+    "exceljs": "^4.4.0",
+    "file-saver": "^2.0.5",
+    "moment": "^2.29.4",
+    "office-ui-fabric-react": "^7.204.1",
+    "office-ui-fabric-react-pagination": "^0.0.8",
+    "primeicons": "^6.0.1",
+    "primereact": "^10.9.3",
+    "react-google-charts": "^4.0.1"
   },
   "devDependencies": {
     "@microsoft/rush-stack-compiler-4.7": "0.1.0",
@@ -37,6 +50,7 @@
     "@types/react": "17.0.45",
     "@types/react-dom": "17.0.17",
     "eslint-plugin-react-hooks": "4.3.0",
-    "@microsoft/sp-module-interfaces": "1.18.2"
+    "@microsoft/sp-module-interfaces": "1.18.2",
+    "spfx-fast-serve-helpers": "~1.18.0"
   }
 }
