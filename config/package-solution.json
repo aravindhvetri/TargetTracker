@@ -1,0 +1,40 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "target-tracker-client-side-solution",
+    "id": "85e73ab5-f0dd-4476-ad97-3f76d121436a",
+    "version": "1.0.0.0",
+    "includeClientSideAssets": true,
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "developer": {
+      "name": "",
+      "websiteUrl": "",
+      "privacyUrl": "",
+      "termsOfUseUrl": "",
+      "mpnId": "Undefined-1.18.2"
+    },
+    "metadata": {
+      "shortDescription": {
+        "default": "TargetTracker description"
+      },
+      "longDescription": {
+        "default": "TargetTracker description"
+      },
+      "screenshotPaths": [],
+      "videoUrl": "",
+      "categories": []
+    },
+    "features": [
+      {
+        "title": "target-tracker Feature",
+        "description": "The feature that activates elements of the target-tracker solution.",
+        "id": "a6ce4502-cb96-4c29-8458-2278f6cfc10f",
+        "version": "1.0.0.0"
+      }
+    ]
+  },
+  "paths": {
+    "zippedPackage": "solution/target-tracker.sppkg"
+  }
+}

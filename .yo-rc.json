@@ -1,0 +1,21 @@
+{
+  "@microsoft/generator-sharepoint": {
+    "plusBeta": false,
+    "isCreatingSolution": true,
+    "nodeVersion": "18.18.1",
+    "sdksVersions": {
+      "@microsoft/microsoft-graph-client": "3.0.2",
+      "@microsoft/teams-js": "2.12.0"
+    },
+    "version": "1.18.2",
+    "libraryName": "target-tracker",
+    "libraryId": "85e73ab5-f0dd-4476-ad97-3f76d121436a",
+    "environment": "spo",
+    "packageManager": "npm",
+    "solutionName": "TargetTracker",
+    "solutionShortDescription": "TargetTracker description",
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "componentType": "webpart"
+  }
+}
