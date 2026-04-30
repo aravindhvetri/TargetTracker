@@ -1,0 +1,169 @@
+.actionContainer {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0px 12px 8px 10px;
+  border-radius: 6px;
+}
+
+/* Title */
+.title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #2da654;
+  letter-spacing: 0.3px;
+}
+
+/* Add Button */
+.addBtn {
+  font-weight: 600 !important;
+  background: #2da654 !important;
+  border: 1px solid #2da654 !important;
+  color: white !important;
+  font-size: 13px !important;
+  border-radius: 6px !important;
+  padding: 8px !important;
+  display: flex;
+  align-items: center;
+  transition: all 0.3s ease;
+
+  .pi {
+    font-size: 12px !important;
+  }
+}
+
+.dialog {
+  .p-dialog-header {
+    font-weight: 600;
+    font-size: 18px;
+  }
+}
+
+.form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px 16px;
+  padding-top: 10px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  label {
+    font-size: 13px;
+    padding-bottom: 4px;
+    font-weight: 500;
+    color: #444;
+  }
+
+  input,
+  .p-dropdown,
+  :global(.ms-PeoplePicker) {
+    width: 100%;
+    border-radius: 2px;
+  }
+}
+
+.requiredText {
+  font-size: 10px;
+  color: #d32f2f;
+  font-weight: 500;
+}
+
+/* Footer Buttons */
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 10px;
+  grid-column: 1 / -1;
+}
+
+.actionButton {
+  width: 2rem !important;
+  height: 2rem !important;
+  transition: all 0.2s ease !important;
+}
+
+.editButton {
+  color: #0f7b43 !important;
+  background: #e7f8ec !important;
+  border: 1px solid #bfe8cd !important;
+
+  &:hover {
+    background: #d8f1e2 !important;
+    border-color: #99d9b0 !important;
+    color: #0b5f32 !important;
+  }
+}
+
+.deleteButton {
+  color: #c24141 !important;
+  background: #fde9e9 !important;
+  border: 1px solid #f8c9c9 !important;
+
+  &:hover {
+    background: #fbdada !important;
+    border-color: #f2aaaa !important;
+    color: #a82f2f !important;
+  }
+}
+
+.deleteConfirmDialog {
+  :global(.p-dialog-header) {
+    padding-bottom: 0.5rem;
+  }
+
+  :global(.p-confirm-dialog-message) {
+    color: #4b5563;
+    line-height: 1.4;
+  }
+
+  :global(.p-confirm-dialog-reject),
+  :global(.p-confirm-dialog-accept) {
+    min-width: 80px;
+  }
+}
+
+.cancelButton:hover {
+  color: white !important;
+}
+
+.cancelButton {
+  background-color: #f0f0f0 !important;
+  border: 1px solid #f0f0f0 !important;
+  color: #444 !important;
+  font-size: 13px !important;
+  border-radius: 6px !important;
+  padding: 8px 20px !important;
+  display: flex;
+  align-items: center;
+  font-weight: 500 !important;
+  transition: all 0.3s ease;
+}
+.saveButton {
+  background-color: #2da654 !important;
+  border: 1px solid #2da654 !important;
+  color: white !important;
+  font-size: 13px !important;
+  border-radius: 6px !important;
+  padding: 8px 20px !important;
+  font-weight: 500 !important;
+  display: flex;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+
+@media (max-width: 900px) {
+  .form {
+    grid-template-columns: 1fr;
+  }
+}

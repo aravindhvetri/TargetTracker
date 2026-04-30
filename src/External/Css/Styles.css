@@ -1,0 +1,116 @@
+#workbenchPageContent {
+  max-width: 100%;
+}
+.ms-HubNav {
+  display: none !important;
+}
+
+.content_3f3fd3c2,
+.CanvasZone {
+  padding: 0 !important;
+  max-width: 100% !important;
+}
+
+div[role="contentinfo"] {
+  display: none !important;
+}
+
+#CommentsWrapper {
+  display: none !important;
+}
+
+#spCommandBar {
+  display: none !important;
+}
+
+.spAppAndPropertyPanelContainer .sp-appBar {
+  display: none !important;
+}
+
+[data-automation-id="CanvasZone-SectionContainer"] {
+  padding: 0px !important;
+}
+
+[data-automation-id="contentScrollRegion"] {
+  overflow-y: hidden !important;
+}
+
+div[data-sp-feature-tag="Site header host"] {
+  display: none !important;
+}
+
+/* Scroll Bar */
+*::-webkit-scrollbar {
+  height: 5px;
+  width: 5px;
+}
+
+*::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  background-color: #d4d4d4;
+}
+
+/* PrimeReact DataTable Styles */
+.p-datatable .p-sortable-column.p-highlight {
+  color: #2ba555 !important;
+}
+.p-datatable .p-sortable-column.p-highlight .p-sortable-column-icon {
+  color: #2ba555 !important;
+}
+.p-datatable .p-datatable-thead > tr > th {
+  padding: 14px !important;
+  font-size: 14px !important;
+  border: 1px solid transparent !important;
+}
+.p-datatable .p-datatable-tbody > tr > td {
+  padding: 10px 16px !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+}
+.p-datatable
+  .p-sortable-column:not(.p-highlight):not(.p-sortable-disabled):hover {
+  background: transparent !important;
+  color: #212529;
+}
+
+/* PrimeReact Dropdown Styles */
+.p-dropdown:not(.p-disabled).p-focus {
+  box-shadow: none !important;
+  border-color: #1b643245 !important;
+}
+.p-dialog .p-dialog-header .p-dialog-title {
+  font-size: 16px !important;
+  color: #1b6432 !important;
+}
+.p-inputtext:enabled:focus {
+  box-shadow: none !important;
+  border-color: #1b643245 !important;
+}
+.p-button:focus {
+  box-shadow: none !important;
+  border-color: #1b643245 !important;
+}
+.p-dropdown-label {
+  font-size: 12px !important;
+}
+
+/* PrimeReact InputText Styles */
+.p-inputtext {
+  font-size: 12px !important;
+}
+.p-dropdown-panel .p-dropdown-items {
+  font-size: 12px !important;
+}
+.p-button-text {
+  background-color: #8e9e95 !important;
+  color: #ffffff !important;
+  border-color: #8e9e95 !important;
+}
+
+/*Normal people picker styles*/
+.ms-BasePicker-text {
+  border: 1px solid rgb(206 212 218) !important;
+}
+.ms-BasePicker-text:hover {
+  border-color: rgb(206 212 218) !important;
+}
