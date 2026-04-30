@@ -13,23 +13,26 @@
     "outDir": "lib",
     "inlineSources": false,
     "noImplicitAny": true,
+    "noUnusedLocals": false,
 
-    "typeRoots": [
-      "./node_modules/@types",
-      "./node_modules/@microsoft"
-    ],
-    "types": [
-      "webpack-env"
-    ],
+    "typeRoots": ["./node_modules/@types", "./node_modules/@microsoft"],
+    "types": ["webpack-env"],
     "lib": [
       "es5",
       "dom",
       "es2015.collection",
-      "es2015.promise"
+      "es2015.promise",
+      "es2015",
+      "es2016",
+      "ES2017",
+      "ES2019"
     ]
   },
   "include": [
     "src/**/*.ts",
-    "src/**/*.tsx"
+    "src/**/*.tsx",
+    "src/**/*.d.ts",
+    "src/**/*.js",
+    "src/**/*.jsx"
   ]
 }

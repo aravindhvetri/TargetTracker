@@ -1,0 +1,197 @@
+.pageShell {
+  display: grid;
+  grid-template-columns: 250px minmax(0, 1fr);
+  height: calc(100vh - 57px);
+  border-radius: 18px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #f4fff6 0%, #ecf9f0 55%, #e6f7ec 100%);
+  font-family: "Segoe UI", sans-serif;
+  color: #19472a;
+  margin: 4px;
+}
+
+.sidePanel {
+  background: linear-gradient(180deg, #0f6b3d 0%, #128448 45%, #1b9e57 100%);
+  padding: 24px 18px;
+  color: #ecfff2;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  height: 100%;
+  overflow: hidden;
+}
+
+.brand {
+  padding: 6px 10px 14px;
+  border-bottom: 1px solid rgba(228, 255, 236, 0.26);
+}
+
+.brandTitle {
+  font-size: 27px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  line-height: 1.25;
+}
+
+.brandSubtitle {
+  margin-top: 6px;
+  font-size: 12px;
+  color: rgba(236, 255, 242, 0.8);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.tabs {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tab {
+  padding: 11px 14px;
+  border-radius: 10px;
+  background: rgba(234, 255, 240, 0.08);
+  border: 1px solid rgba(222, 255, 232, 0.14);
+  color: rgba(236, 255, 242, 0.88);
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: rgba(234, 255, 240, 0.18);
+    border-color: rgba(222, 255, 232, 0.3);
+    color: #ffffff;
+  }
+}
+
+.tab.active {
+  background: #dcf8e6;
+  color: #115f36;
+  border-color: #b6ebca;
+  box-shadow: 0 8px 20px rgba(8, 77, 39, 0.25);
+}
+
+.mainArea {
+  padding: 12px;
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.fyCard {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid #d3efd9;
+  border-radius: 14px;
+  padding: 14px 18px;
+  margin-bottom: 18px;
+  box-shadow: 0 5px 16px rgba(29, 93, 52, 0.08);
+}
+
+.fyLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.icon {
+  font-size: 30px;
+}
+
+.fyLabel {
+  font-size: 12px;
+  color: #5a7b67;
+}
+
+.fyTitle {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f6b3d;
+}
+
+.fyRange {
+  font-size: 13px;
+  color: #2c7e4d;
+  background: #e7f8ec;
+  border: 1px solid #caedd6;
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-weight: 600;
+}
+
+.content {
+  background: #ffffff;
+  border-radius: 14px;
+  border: 1px solid #d7efde;
+  box-shadow: 0 8px 22px rgba(22, 98, 49, 0.08);
+  padding: 14px;
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
+:global {
+  .p-datatable .p-datatable-header {
+    background: #f5fff7 !important;
+    border-color: #d5efd9 !important;
+  }
+
+  .p-datatable .p-datatable-thead > tr > th {
+    background: #f3fcf5 !important;
+    color: #245f3d !important;
+    border-color: #d5efd9 !important;
+    font-weight: 700 !important;
+  }
+
+  .p-datatable .p-datatable-tbody > tr > td {
+    border-color: #e2f2e6 !important;
+  }
+
+  .p-datatable .p-datatable-tbody > tr:hover {
+    background: #f6fff8 !important;
+  }
+
+  .p-button {
+    background: #16924f !important;
+    border-color: #16924f !important;
+  }
+
+  .p-button:hover {
+    background: #11783f !important;
+    border-color: #11783f !important;
+  }
+
+  .p-dropdown {
+    border-color: #cde8d5 !important;
+  }
+
+  .p-dropdown-panel .p-dropdown-items .p-dropdown-item.p-highlight {
+    background: #e7f8ec !important;
+    color: #0f6b3d !important;
+  }
+
+  .p-dialog .p-dialog-header {
+    background: #f3fcf6 !important;
+    border-bottom: 1px solid #d4edd9 !important;
+  }
+}
+
+@media (max-width: 1100px) {
+  .pageShell {
+    grid-template-columns: 1fr;
+  }
+
+  .sidePanel {
+    padding: 18px;
+    gap: 14px;
+  }
+
+  .tabs {
+    flex-direction: row;
+  }
+}

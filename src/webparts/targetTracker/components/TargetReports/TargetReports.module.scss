@@ -1,0 +1,260 @@
+.container {
+  padding: 0;
+  color: #ececec;
+}
+
+.filterRow {
+  margin-bottom: 18px;
+}
+
+.filterLabel {
+  color: #6b7284;
+  font-size: 14px;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.pmCardsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  width: 100%;
+  .pmCard {
+    width: 49.2%;
+  }
+}
+
+.dropdown {
+  width: 100%;
+  max-width: 260px;
+
+  :global(.p-dropdown) {
+    width: 100%;
+    border-radius: 8px;
+    height: 40px;
+    border: 1px solid #3a3a3a;
+    background: #1b1c20;
+    color: #ececec;
+  }
+
+  :global(.p-dropdown-label) {
+    padding: 9px 12px;
+    color: #a47e7e;
+  }
+
+  :global(.p-dropdown-trigger) {
+    color: #a47e7e;
+  }
+}
+
+.summaryCards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.summaryCard {
+  background: linear-gradient(55deg, #075c32, #32b163);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.cardTitle {
+  font-size: 13px;
+  color: #c8ccd4;
+  margin-bottom: 8px;
+}
+
+.cardValue {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.cardSubtext {
+  font-size: 13px;
+  color: #a6acb8;
+}
+
+.sectionTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: #718178;
+  margin: 20px 0 12px;
+}
+
+.pmCard {
+  background: linear-gradient(17deg, #074f5c, #32b163);
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.pmHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.pmIdentity {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pmAvatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #c8f0e6;
+  color: #1e3431;
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pmName {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.pmMeta {
+  font-size: 12px;
+  color: #afafb2;
+}
+
+.pmTargetInfo {
+  text-align: right;
+}
+
+.pmAchieved {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.pmOfTarget {
+  font-size: 13px;
+  color: #a6acb8;
+}
+
+.progressTrack {
+  width: 100%;
+  height: 8px;
+  border-radius: 10px;
+  background: #30333a;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: 10px;
+}
+
+.progressGreen {
+  background: #2ccf99;
+}
+
+.progressAmber {
+  background: #d18e20;
+}
+
+.progressRed {
+  background: #d44f4f;
+}
+
+.pmFooter {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+  font-size: 14px;
+}
+
+.pmMetric {
+  color: #d0d4db;
+
+  span {
+    margin-left: 4px;
+    font-weight: 700;
+  }
+}
+
+.attainmentBadge {
+  border-radius: 16px;
+  padding: 4px 10px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.badgeSuccess {
+  background: #d4efe3;
+  color: #193d34;
+}
+
+.badgeWarning {
+  background: #f0e6c7;
+  color: #493b1b;
+}
+
+.summaryTable {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr 1fr 1fr 0.8fr;
+  border-top: 1px solid #2f313840;
+  margin-top: 4px;
+}
+
+.summaryHeader {
+  font-size: 13px;
+  color: #a8aeb8;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.2px;
+  padding: 12px 10px;
+  border-bottom: 1px solid #2f313840;
+}
+
+.summaryCell {
+  font-size: 16px;
+  font-weight: 600;
+  padding: 14px 10px;
+  color: #848881;
+  border-bottom: 1px solid #2f313840;
+}
+
+.positiveText {
+  color: #2ccf99;
+}
+
+.negativeText {
+  color: #ff7e4f;
+}
+
+.emptyState {
+  color: #a6acb8;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+@media (max-width: 900px) {
+  .summaryCards {
+    grid-template-columns: 1fr;
+  }
+
+  .pmHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .pmTargetInfo {
+    text-align: left;
+  }
+
+  .summaryTable {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
