@@ -10,21 +10,74 @@
   align-items: center;
   padding: 0px 12px 8px 10px;
   border-radius: 6px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.searchField {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 11px;
+  color: #64748b;
+  font-size: 13px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.listSearchInput {
+  min-width: 200px;
+  max-width: 320px;
+  width: clamp(180px, 28vw, 320px);
+  height: 36px;
+  padding: 0 12px 0 2.35rem !important;
+  border-radius: 6px !important;
+  font-size: 13px !important;
+  color: #1e293b !important;
+  border: 1px solid #cbd5e1 !important;
+  background: #fff !important;
+  box-shadow: none !important;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+  &::placeholder {
+    color: #94a3b8;
+  }
+
+  &:hover {
+    border-color: #94a3b8 !important;
+  }
+
+  &:focus {
+    outline: none !important;
+    border-color: #2563eb !important;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2) !important;
+  }
 }
 
 /* Title */
 .title {
   font-size: 18px;
   font-weight: 600;
-  color: #2da654;
+  color: #2563eb;
   letter-spacing: 0.3px;
 }
 
 /* Add Button */
 .addBtn {
   font-weight: 600 !important;
-  background: #2da654 !important;
-  border: 1px solid #2da654 !important;
+  background: #2563eb !important;
+  border: 1px solid #2563eb !important;
   color: white !important;
   font-size: 13px !important;
   border-radius: 6px !important;
@@ -94,14 +147,14 @@
 }
 
 .editButton {
-  color: #0f7b43 !important;
-  background: #e7f8ec !important;
-  border: 1px solid #bfe8cd !important;
+  color: #1e40af !important;
+  background: #e0e9fb !important;
+  border: 1px solid #b8cef5 !important;
 
   &:hover {
-    background: #d8f1e2 !important;
-    border-color: #99d9b0 !important;
-    color: #0b5f32 !important;
+    background: #d0dffd !important;
+    border-color: #93c5fd !important;
+    color: #1e3a5f !important;
   }
 }
 
@@ -150,8 +203,8 @@
   transition: all 0.3s ease;
 }
 .saveButton {
-  background-color: #2da654 !important;
-  border: 1px solid #2da654 !important;
+  background-color: #2563eb !important;
+  border: 1px solid #2563eb !important;
   color: white !important;
   font-size: 13px !important;
   border-radius: 6px !important;
