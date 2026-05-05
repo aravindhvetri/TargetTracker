@@ -55,7 +55,7 @@
 }
 
 .summaryCard {
-  background: linear-gradient(55deg, #075c32, #32b163);
+  background: linear-gradient(55deg, #1e3a5f, #3b82f6);
   border-radius: 12px;
   padding: 16px;
 }
@@ -85,7 +85,7 @@
 }
 
 .pmCard {
-  background: linear-gradient(17deg, #074f5c, #32b163);
+  background: linear-gradient(17deg, #1e2852, #2563eb);
   border-radius: 12px;
   padding: 14px;
 }
@@ -107,8 +107,8 @@
   width: 34px;
   height: 34px;
   border-radius: 50%;
-  background: #c8f0e6;
-  color: #1e3431;
+  background: #d4e4fc;
+  color: #1e293b;
   font-size: 12px;
   font-weight: 700;
   display: flex;
@@ -155,7 +155,7 @@
 }
 
 .progressGreen {
-  background: #2ccf99;
+  background: #3b82f6;
 }
 
 .progressAmber {
@@ -191,8 +191,8 @@
 }
 
 .badgeSuccess {
-  background: #d4efe3;
-  color: #193d34;
+  background: #dce7fc;
+  color: #1e3a5f;
 }
 
 .badgeWarning {
@@ -226,7 +226,7 @@
 }
 
 .positiveText {
-  color: #2ccf99;
+  color: #60a5fa;
 }
 
 .negativeText {

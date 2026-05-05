@@ -6,7 +6,7 @@
 /* eslint-disable prefer-const */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as React from "react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import SPServices from "../../../../External/CommonServices/SPServices";
 import { Config } from "../../../../External/CommonServices/Config";
 import { DataTable } from "primereact/datatable";
@@ -54,6 +54,29 @@ const TargetConfig = (props: any) => {
     ProjectManager: false,
     DeliveryHead: false,
   });
+  const [listSearch, setListSearch] = useState("");
+
+  //Filtered Target Configuration Data function:
+  const filteredTargetConfigData = useMemo(() => {
+    const q = listSearch.trim().toLowerCase();
+    if (!q) return targetConfigData;
+
+    const peopleMatch = (people: IPeoplePickerDetails[]): boolean =>
+      (people || []).some((p) => {
+        const name = (p?.name || "").toLowerCase();
+        const email = (p?.email || "").toLowerCase();
+        return name.includes(q) || email.includes(q);
+      });
+
+    return targetConfigData.filter((row) => {
+      const technology = (row.Technology || "").toLowerCase();
+      const target = String(row.Target ?? "").toLowerCase();
+      if (technology.includes(q) || target.includes(q)) return true;
+      if (peopleMatch(row.ProjectManager)) return true;
+      if (peopleMatch(row.DeliveryHead)) return true;
+      return false;
+    });
+  }, [targetConfigData, listSearch]);
 
   //Use Effect to get Target Configuration Data:
   useEffect(() => {
@@ -376,18 +399,32 @@ const TargetConfig = (props: any) => {
       <div className={styles.header}>
         <div className={styles.title}>Target configurations</div>
 
-        <Button
-          label="Add target"
-          icon="pi pi-plus"
-          className={styles.addBtn}
-          onClick={handleAdd}
-        />
+        <div className={styles.headerActions}>
+          <div className={styles.searchField}>
+            <i className={`pi pi-search ${styles.searchIcon}`} aria-hidden />
+            <InputText
+              value={listSearch}
+              onChange={(e) => setListSearch(e.target.value)}
+              placeholder="Search…"
+              className={styles.listSearchInput}
+              aria-label="Search target configurations"
+            />
+          </div>
+          <Button
+            label="Add target"
+            icon="pi pi-plus"
+            className={styles.addBtn}
+            onClick={handleAdd}
+          />
+        </div>
       </div>
 
       <DataTable
-        value={targetConfigData}
-        paginator={targetConfigData && targetConfigData?.length > 8}
-        rows={8}
+        value={filteredTargetConfigData}
+        paginator={
+          filteredTargetConfigData && filteredTargetConfigData?.length > 7
+        }
+        rows={7}
         emptyMessage="No data found"
       >
         <Column sortable field="Technology" header="Technology"></Column>

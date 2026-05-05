@@ -52,10 +52,10 @@ div[data-sp-feature-tag="Site header host"] {
 
 /* PrimeReact DataTable Styles */
 .p-datatable .p-sortable-column.p-highlight {
-  color: #2ba555 !important;
+  color: #2563eb !important;
 }
 .p-datatable .p-sortable-column.p-highlight .p-sortable-column-icon {
-  color: #2ba555 !important;
+  color: #2563eb !important;
 }
 .p-datatable .p-datatable-thead > tr > th {
   padding: 14px !important;
@@ -76,19 +76,19 @@ div[data-sp-feature-tag="Site header host"] {
 /* PrimeReact Dropdown Styles */
 .p-dropdown:not(.p-disabled).p-focus {
   box-shadow: none !important;
-  border-color: #1b643245 !important;
+  border-color: #2563eb45 !important;
 }
 .p-dialog .p-dialog-header .p-dialog-title {
   font-size: 16px !important;
-  color: #1b6432 !important;
+  color: #1e40af !important;
 }
 .p-inputtext:enabled:focus {
   box-shadow: none !important;
-  border-color: #1b643245 !important;
+  border-color: #2563eb45 !important;
 }
 .p-button:focus {
   box-shadow: none !important;
-  border-color: #1b643245 !important;
+  border-color: #2563eb45 !important;
 }
 .p-dropdown-label {
   font-size: 12px !important;
@@ -102,9 +102,9 @@ div[data-sp-feature-tag="Site header host"] {
   font-size: 12px !important;
 }
 .p-button-text {
-  background-color: #8e9e95 !important;
+  background-color: #64748b !important;
   color: #ffffff !important;
-  border-color: #8e9e95 !important;
+  border-color: #64748b !important;
 }
 
 /*Normal people picker styles*/
@@ -113,4 +113,35 @@ div[data-sp-feature-tag="Site header host"] {
 }
 .ms-BasePicker-text:hover {
   border-color: rgb(206 212 218) !important;
+}
+
+/*prime react Paginator styles*/
+.p-paginator .p-paginator-first,
+.p-paginator .p-paginator-prev,
+.p-paginator .p-paginator-next,
+.p-paginator .p-paginator-last {
+  border: none !important;
+  color: #1f3f70 !important;
+}
+.p-paginator {
+  gap: 3px !important;
+  padding: 30px 0px 0px 0px !important;
+}
+.p-paginator .p-paginator-pages .p-paginator-page {
+  border: none !important;
+  margin: 0 0 0 3px !important;
+  width: 30px;
+  height: 30px;
+  min-width: 0px !important;
+  color: #1e3e6e !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+}
+.p-paginator .p-paginator-pages .p-paginator-page {
+  border: none !important;
+}
+.p-paginator .p-paginator-pages .p-paginator-page.p-highlight {
+  border-radius: 50% !important;
+  background: #1f4072 !important;
+  color: #ffffff !important;
 }
