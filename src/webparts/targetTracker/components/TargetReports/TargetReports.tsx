@@ -7,10 +7,24 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as React from "react";
 import styles from "./TargetReports.module.scss";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import SPServices from "../../../../External/CommonServices/SPServices";
 import { Config } from "../../../../External/CommonServices/Config";
 import { Dropdown } from "primereact/dropdown";
+import { DataTable } from "primereact/datatable";
+import { Column } from "primereact/column";
+import { Dialog } from "primereact/dialog";
+import { Button } from "primereact/button";
+import {
+  formatCurrency,
+  getAmountFromBilling,
+  getBillingProjectId,
+  getCurrentFinancialYearOption,
+  getFinancialYearDateRange,
+  getFinancialYearFilterOptions,
+  getNumericValue,
+  normalizeFinancialYear,
+} from "../../../../External/CommonTemplates/CommonTemplates";
 
 interface IDeliveryHeadOption {
   label: string;
@@ -28,6 +42,16 @@ interface IProjectManagerReport {
   attainment: number;
 }
 
+interface IInvoiceDetailRow {
+  id: number;
+  projectName: string;
+  clientName: string;
+  status: number;
+  amount: number;
+  dueDate?: string;
+  invoiceID?: string;
+}
+
 const TargetReports = (props: any) => {
   //States:
   const [targetConfigData, setTargetConfigData] = useState<
@@ -37,15 +61,106 @@ const TargetReports = (props: any) => {
     IDeliveryHeadOption[]
   >([]);
   const [selectedDeliveryHead, setSelectedDeliveryHead] = useState<any>(null);
+  const [fieldChoiceOptions, setFieldChoiceOptions] = useState<
+    Record<string, { name: string }[]>
+  >({
+    FinancialYear: [],
+  });
+  const [selectedFinancialYear, setSelectedFinancialYear] =
+    useState<string>("");
   const [projectManagerReports, setProjectManagerReports] = useState<
     IProjectManagerReport[]
   >([]);
   const [loading, setLoading] = useState<boolean>(false);
+  const [invoiceDialogVisible, setInvoiceDialogVisible] =
+    useState<boolean>(false);
+  const [selectedInvoicePm, setSelectedInvoicePm] =
+    useState<IProjectManagerReport | null>(null);
+  const [invoiceDetailsByPM, setInvoiceDetailsByPM] = useState<
+    Record<string, IInvoiceDetailRow[]>
+  >({});
 
   //Use Effect to get Target Configuration Data:
   useEffect(() => {
     getTargetConfigurationData();
   }, []);
+
+  useEffect(() => {
+    const availableFinancialYears = getFinancialYearFilterOptions(
+      fieldChoiceOptions.FinancialYear,
+      targetConfigData,
+    );
+    if (!availableFinancialYears.length) {
+      if (selectedFinancialYear) {
+        setSelectedFinancialYear("");
+      }
+      return;
+    }
+
+    const selectedStillValid = availableFinancialYears.some(
+      (option) => option.name === selectedFinancialYear,
+    );
+    if (selectedStillValid) return;
+
+    const currentFinancialYear = getCurrentFinancialYearOption(
+      availableFinancialYears,
+    );
+    setSelectedFinancialYear(
+      currentFinancialYear || availableFinancialYears[0].name || "",
+    );
+  }, [fieldChoiceOptions.FinancialYear, targetConfigData]);
+
+  const financialYearFilterOptions = getFinancialYearFilterOptions(
+    fieldChoiceOptions.FinancialYear,
+    targetConfigData,
+  );
+
+  const filteredDeliveryHeadOptions = useMemo(() => {
+    const normalizedSelectedFinancialYear = normalizeFinancialYear(
+      selectedFinancialYear,
+    );
+    const allDeliveryHeads: IPeoplePickerDetails[] = [];
+
+    targetConfigData.forEach((item) => {
+      const rowFinancialYear = normalizeFinancialYear(item.FinancialYear || "");
+      if (
+        normalizedSelectedFinancialYear &&
+        rowFinancialYear !== normalizedSelectedFinancialYear
+      ) {
+        return;
+      }
+
+      if (item.DeliveryHead?.length) {
+        item.DeliveryHead.forEach((dh) => {
+          allDeliveryHeads.push(dh);
+        });
+      }
+    });
+
+    const uniqueDeliveryHeads = Array.from(
+      new Map(allDeliveryHeads.map((item) => [item.email, item])).values(),
+    );
+
+    return uniqueDeliveryHeads.map((dh) => ({
+      label: dh.name,
+      value: dh,
+    }));
+  }, [targetConfigData, selectedFinancialYear]);
+
+  useEffect(() => {
+    setDeliveryHeadOptions(filteredDeliveryHeadOptions);
+
+    if (!selectedDeliveryHead) return;
+
+    const selectedStillValid = filteredDeliveryHeadOptions.some(
+      (option) => option.value?.email === selectedDeliveryHead?.email,
+    );
+
+    if (!selectedStillValid) {
+      setSelectedDeliveryHead(null);
+      setProjectManagerReports([]);
+    }
+  }, [filteredDeliveryHeadOptions, selectedDeliveryHead]);
 
   //Get Target Configuration Data function:
   const getTargetConfigurationData = async () => {
@@ -85,6 +200,7 @@ const TargetReports = (props: any) => {
           data.push({
             ID: items.ID || 0,
             Technology: items.Technology || "",
+            FinancialYear: items.FinancialYear || "",
             Target: items.Target || "",
             ProjectManager: _ProjectManager || [],
             DeliveryHead: _DeliveryHead || [],
@@ -92,71 +208,29 @@ const TargetReports = (props: any) => {
           });
         });
         setTargetConfigData([...data]);
-        let allDeliveryHeads: any[] = [];
-
-        // Get all delivery heads
-        data.forEach((item) => {
-          if (item.DeliveryHead?.length) {
-            item.DeliveryHead.forEach((dh) => {
-              allDeliveryHeads.push(dh);
-            });
-          }
-        });
-
-        // Remove duplicates using Map (based on email)
-        const uniqueDeliveryHeads = Array.from(
-          new Map(allDeliveryHeads.map((item) => [item.email, item])).values(),
-        );
-
-        // Convert to dropdown format
-        const dropdownOptions = uniqueDeliveryHeads.map((dh) => ({
-          label: dh.name,
-          value: dh,
-        }));
-
-        setDeliveryHeadOptions(dropdownOptions);
+        getFieldChoices();
       })
       .catch((error: any) => {
         console.log(error);
       });
   };
 
-  //Handle Delivery Head Change function:
-  const getNumericValue = (value: any): number => {
-    if (value === null || value === undefined || value === "") {
-      return 0;
+  const getFieldChoices = async () => {
+    try {
+      const response: any = await SPServices.SPGetChoices({
+        Listname: Config.ListNames.TargetConfiguration,
+        FieldName: "FinancialYear",
+      });
+
+      setFieldChoiceOptions({
+        FinancialYear: (response?.Choices || []).map((val: any) => ({
+          name: val,
+        })),
+      });
+    } catch (error) {
+      console.log(error);
+      setFieldChoiceOptions({ FinancialYear: [] });
     }
-    if (typeof value === "number") {
-      return Number.isNaN(value) ? 0 : value;
-    }
-    const cleanedValue = value.toString().replace(/,/g, "").trim();
-    const parsed = parseFloat(cleanedValue);
-    return Number.isNaN(parsed) ? 0 : parsed;
-  };
-
-  const getAmountFromBilling = (billing: any): number => {
-    const amount = getNumericValue(billing?.Amount);
-    if (amount > 0) return amount;
-
-    const tmAmount = getNumericValue(billing?.TMAmount);
-    if (tmAmount > 0) return tmAmount;
-
-    return getNumericValue(billing?.MonthlyAmount);
-  };
-
-  const getBillingProjectId = (billing: any): number => {
-    return (
-      billing?.CRMProjectId ||
-      billing?.ProjectId ||
-      billing?.CRMProject?.Id ||
-      billing?.Project?.Id ||
-      billing?.ProjectLookupId ||
-      0
-    );
-  };
-
-  const formatCurrency = (value: number): string => {
-    return `₹${Math.round(value).toLocaleString("en-IN")}`;
   };
 
   const getBadgeClass = (value: number): string => {
@@ -176,6 +250,10 @@ const TargetReports = (props: any) => {
     setLoading(true);
 
     try {
+      const normalizedSelectedFinancialYear = normalizeFinancialYear(
+        selectedFinancialYear,
+      );
+
       // 1) Collect PMs and targets from target configuration under selected DH.
       const projectManagersMap = new Map<
         string,
@@ -183,6 +261,16 @@ const TargetReports = (props: any) => {
       >();
 
       targetConfigData.forEach((item) => {
+        const rowFinancialYear = normalizeFinancialYear(
+          item.FinancialYear || "",
+        );
+        if (
+          normalizedSelectedFinancialYear &&
+          rowFinancialYear !== normalizedSelectedFinancialYear
+        ) {
+          return;
+        }
+
         const isMappedToDH = item.DeliveryHead?.some(
           (dh) => dh.email === selectedDH.email,
         );
@@ -225,20 +313,21 @@ const TargetReports = (props: any) => {
         Expand: "ProjectManager,DeliveryHead",
       });
 
-      const today = new Date();
-      const currentYear = today.getFullYear();
-      const currentMonth = today.getMonth() + 1;
-
-      const startFY =
-        currentMonth >= 4
-          ? new Date(currentYear, 3, 1)
-          : new Date(currentYear - 1, 3, 1);
-      const endFY =
-        currentMonth >= 4
-          ? new Date(currentYear + 1, 2, 31)
-          : new Date(currentYear, 2, 31);
+      const financialYearRange = getFinancialYearDateRange(
+        selectedFinancialYear,
+      );
+      if (!financialYearRange) {
+        setProjectManagerReports([]);
+        setLoading(false);
+        return;
+      }
+      const { startFY, endFY } = financialYearRange;
 
       const projectToProjectManagers = new Map<number, string[]>();
+      const projectLookup = new Map<
+        number,
+        { projectName: string; clientName: string }
+      >();
 
       projectsResponse.forEach((project) => {
         const dhMatch = project?.DeliveryHead?.some(
@@ -261,6 +350,19 @@ const TargetReports = (props: any) => {
         if (startDate < startFY || endDate > endFY) return;
 
         projectToProjectManagers.set(project.ID, projectPMs);
+
+        const projectName =
+          project?.ProjectName || project?.Title || project?.Project || "";
+        const clientName =
+          project?.ClientName ||
+          project?.Client?.Title ||
+          project?.Client ||
+          "";
+
+        projectLookup.set(project.ID, {
+          projectName,
+          clientName,
+        });
       });
 
       if (!projectToProjectManagers.size) {
@@ -293,6 +395,7 @@ const TargetReports = (props: any) => {
         string,
         { achieved: number; invoiceRaised: number; invoiceNotGenerated: number }
       >();
+      const invoiceDetails: Record<string, IInvoiceDetailRow[]> = {};
 
       billingsResponse.forEach((billing) => {
         const projectId = getBillingProjectId(billing);
@@ -322,6 +425,25 @@ const TargetReports = (props: any) => {
           } else if (status === 0) {
             current.invoiceNotGenerated += amount;
           }
+
+          if (!invoiceDetails[pmEmail]) {
+            invoiceDetails[pmEmail] = [];
+          }
+
+          const projectMeta = projectLookup.get(projectId) || {
+            projectName: "",
+            clientName: "",
+          };
+
+          invoiceDetails[pmEmail].push({
+            id: billing.ID || 0,
+            projectName: projectMeta.projectName,
+            clientName: projectMeta.clientName,
+            status,
+            amount,
+            dueDate: billing?.DueDate || "",
+            invoiceID: billing?.InvoiceID || "",
+          });
         });
       });
 
@@ -352,10 +474,51 @@ const TargetReports = (props: any) => {
       );
 
       setProjectManagerReports(pmReports);
+      setInvoiceDetailsByPM(invoiceDetails);
     } catch (error) {
       console.log(error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleViewInvoiceDetails = (pmReport: IProjectManagerReport) => {
+    setSelectedInvoicePm(pmReport);
+    setInvoiceDialogVisible(true);
+  };
+
+  const getStatusLabel = (status: number): string => {
+    if (status === 3) return "Paid";
+    if (status === 1) return "Invoice Raised";
+    if (status === 0) return "Not Generated";
+    return String(status ?? "");
+  };
+
+  const statusBodyTemplate = (rowData: IInvoiceDetailRow) => {
+    const label = getStatusLabel(rowData.status);
+    if (rowData.status === 3) {
+      return <span className={styles.statusPaid}>{label}</span>;
+    }
+    if (rowData.status === 1) {
+      return <span className={styles.statusRaised}>{label}</span>;
+    }
+    if (rowData.status === 0) {
+      return <span className={styles.statusNotGenerated}>{label}</span>;
+    }
+    return <span>{label}</span>;
+  };
+
+  const amountBodyTemplate = (rowData: IInvoiceDetailRow) =>
+    formatCurrency(rowData.amount || 0);
+
+  const dateBodyTemplate = (rowData: IInvoiceDetailRow) => {
+    if (!rowData.dueDate) return "-";
+    try {
+      const parsed = new Date(rowData.dueDate);
+      if (Number.isNaN(parsed.getTime())) return rowData.dueDate;
+      return parsed.toLocaleDateString("en-IN");
+    } catch {
+      return rowData.dueDate;
     }
   };
 
@@ -374,17 +537,43 @@ const TargetReports = (props: any) => {
   const selectedDeliveryHeadLabel =
     selectedDeliveryHead?.name || "Delivery head";
 
+  const selectedPmInvoiceRows: IInvoiceDetailRow[] = selectedInvoicePm
+    ? invoiceDetailsByPM[selectedInvoicePm.email] || []
+    : [];
+
+  const totalReceivedForSelectedPm = selectedPmInvoiceRows
+    .filter((row) => row.status === 3)
+    .reduce((sum, row) => sum + (row.amount || 0), 0);
+
   return (
     <div className={styles.container}>
       <div className={styles.filterRow}>
-        <div className={styles.filterLabel}>Filter by delivery head</div>
-        <Dropdown
-          value={selectedDeliveryHead}
-          options={deliveryHeadOptions}
-          onChange={(e) => handleDeliveryHeadChange(e.value)}
-          placeholder="Select Delivery Head"
-          className={styles.dropdown}
-        />
+        <div style={{ minWidth: "220px", flex: "1 1 240px" }}>
+          <div className={styles.filterLabel}>Financial year</div>
+          <Dropdown
+            value={selectedFinancialYear}
+            options={financialYearFilterOptions}
+            optionLabel="name"
+            optionValue="name"
+            onChange={(e) => {
+              setSelectedFinancialYear(e.value || "");
+              setSelectedDeliveryHead(null);
+              setProjectManagerReports([]);
+            }}
+            placeholder="Select Financial Year"
+            className={styles.dropdown}
+          />
+        </div>
+        <div style={{ minWidth: "220px", flex: "1 1 240px" }}>
+          <div className={styles.filterLabel}>Filter by delivery head</div>
+          <Dropdown
+            value={selectedDeliveryHead}
+            options={deliveryHeadOptions}
+            onChange={(e) => handleDeliveryHeadChange(e.value)}
+            placeholder="Select Delivery Head"
+            className={styles.dropdown}
+          />
+        </div>
       </div>
 
       {selectedDeliveryHead && (
@@ -513,6 +702,15 @@ const TargetReports = (props: any) => {
                           : `-${formatCurrency(Math.abs(pmReport.variance))}`}
                       </span>
                     </div>
+                    <div className={styles.pmMetric}>
+                      <Button
+                        type="button"
+                        label="View Invoice Details"
+                        icon="pi pi-eye"
+                        className={styles.viewInvoiceButton}
+                        onClick={() => handleViewInvoiceDetails(pmReport)}
+                      />
+                    </div>
                   </div>
                 </div>
               ))}
@@ -560,6 +758,74 @@ const TargetReports = (props: any) => {
           )}
         </>
       )}
+      <Dialog
+        header={
+          selectedInvoicePm
+            ? `Invoice details - ${selectedInvoicePm.name}`
+            : "Invoice details"
+        }
+        visible={invoiceDialogVisible}
+        style={{ width: "60vw" }}
+        modal
+        onHide={() => setInvoiceDialogVisible(false)}
+        className={styles.invoiceDialog}
+      >
+        {selectedPmInvoiceRows.length ? (
+          <>
+            <div className={styles.invoiceHeaderMeta}>
+              <div>
+                <div className={styles.invoiceMetaLabel}>Project manager</div>
+                <div className={styles.invoiceMetaValue}>
+                  {selectedInvoicePm?.name}
+                </div>
+              </div>
+            </div>
+
+            <DataTable
+              value={selectedPmInvoiceRows}
+              paginator={selectedPmInvoiceRows.length > 8}
+              rows={8}
+              emptyMessage="No billing data available"
+              className={styles.invoiceTable}
+            >
+              <Column field="projectName" header="Project Name" sortable />
+              <Column field="clientName" header="Client Name" sortable />
+              <Column
+                field="amount"
+                header="Amount"
+                body={amountBodyTemplate}
+                sortable
+              />
+              <Column
+                field="status"
+                header="Status"
+                body={statusBodyTemplate}
+                sortable
+              />
+              <Column field="invoiceID" header="Invoice ID" sortable />
+              <Column
+                field="dueDate"
+                header="Invoice Raised Date"
+                body={dateBodyTemplate}
+                sortable
+              />
+            </DataTable>
+
+            <div className={styles.invoiceFooter}>
+              <div className={styles.invoiceFooterLabel}>
+                Total received (Paid)
+              </div>
+              <div className={styles.invoiceFooterValue}>
+                {formatCurrency(totalReceivedForSelectedPm)}
+              </div>
+            </div>
+          </>
+        ) : (
+          <div className={styles.emptyState}>
+            No billing data available for this project manager.
+          </div>
+        )}
+      </Dialog>
     </div>
   );
 };

@@ -8,6 +8,7 @@ export namespace Config {
   export const TargetConfigurationData: ITargetConfigurationData = {
     ID: null,
     Technology: "",
+    FinancialYear: "",
     Target: "",
     ProjectManager: [],
     DeliveryHead: [],

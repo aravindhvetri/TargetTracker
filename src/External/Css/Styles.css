@@ -4,7 +4,9 @@
 .ms-HubNav {
   display: none !important;
 }
-
+.ms-Fabric {
+  margin: 0 !important;
+}
 .content_3f3fd3c2,
 .CanvasZone {
   padding: 0 !important;

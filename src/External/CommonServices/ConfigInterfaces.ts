@@ -13,6 +13,7 @@ interface IPeoplePickerDetails {
 interface ITargetConfigurationData {
   ID?: number | null;
   Technology: string;
+  FinancialYear: string;
   Target: string;
   ProjectManager: IPeoplePickerDetails[];
   DeliveryHead: IPeoplePickerDetails[];

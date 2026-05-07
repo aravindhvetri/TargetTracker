@@ -12,8 +12,15 @@ import { Config } from "../../../../External/CommonServices/Config";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import {
-  multiPeoplePickerTemplate,
-  peoplePickerTemplate,
+  filterSiteUsers,
+  getCurrentFinancialYearOption,
+  getFinancialYearFilterOptions,
+  getTextFromItem,
+  mapPersonaToPeople,
+  mapToPersona,
+  normalizeFinancialYear,
+  peopleColumnTemplate,
+  peoplePickerSuggestionsProps,
 } from "../../../../External/CommonTemplates/CommonTemplates";
 import styles from "./TargetConfiguration.module.scss";
 import { Button } from "primereact/button";
@@ -21,14 +28,11 @@ import { Dialog } from "primereact/dialog";
 import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
 import { InputText } from "primereact/inputtext";
 import { Dropdown } from "primereact/dropdown";
-import {
-  IBasePickerSuggestionsProps,
-  IPersonaProps,
-  NormalPeoplePicker,
-} from "@fluentui/react";
+import { IPersonaProps, NormalPeoplePicker } from "@fluentui/react";
 
 type IFormErrors = {
   Technology: boolean;
+  FinancialYear: boolean;
   Target: boolean;
   ProjectManager: boolean;
   DeliveryHead: boolean;
@@ -44,22 +48,56 @@ const TargetConfig = (props: any) => {
   const [formData, setFormData] = useState<ITargetConfigurationData>({
     ...Config.TargetConfigurationData,
   });
-  const [technologyOptions, setTechnologyOptions] = useState<
-    { name: string }[]
-  >([]);
+  const [fieldChoiceOptions, setFieldChoiceOptions] = useState<
+    Record<string, { name: string }[]>
+  >({
+    Technology: [],
+    FinancialYear: [],
+  });
   const [siteUsers, setSiteUsers] = useState<IPersonaProps[]>([]);
   const [formErrors, setFormErrors] = useState<IFormErrors>({
     Technology: false,
+    FinancialYear: false,
     Target: false,
     ProjectManager: false,
     DeliveryHead: false,
   });
   const [listSearch, setListSearch] = useState("");
+  const [selectedFinancialYear, setSelectedFinancialYear] =
+    useState<string>("");
+
+  //Use Effect to get Financial Year Filter Options:
+  useEffect(() => {
+    const availableFinancialYears = getFinancialYearFilterOptions(
+      fieldChoiceOptions.FinancialYear,
+      targetConfigData,
+    );
+    if (!availableFinancialYears.length) {
+      if (selectedFinancialYear) {
+        setSelectedFinancialYear("");
+      }
+      return;
+    }
+
+    const selectedStillValid = availableFinancialYears.some(
+      (option) => option.name === selectedFinancialYear,
+    );
+    if (selectedStillValid) return;
+
+    const currentFinancialYear = getCurrentFinancialYearOption(
+      availableFinancialYears,
+    );
+    setSelectedFinancialYear(
+      currentFinancialYear || availableFinancialYears[0].name || "",
+    );
+  }, [fieldChoiceOptions.FinancialYear, targetConfigData]);
 
   //Filtered Target Configuration Data function:
   const filteredTargetConfigData = useMemo(() => {
     const q = listSearch.trim().toLowerCase();
-    if (!q) return targetConfigData;
+    const normalizedSelectedFinancialYear = normalizeFinancialYear(
+      selectedFinancialYear,
+    );
 
     const peopleMatch = (people: IPeoplePickerDetails[]): boolean =>
       (people || []).some((p) => {
@@ -69,14 +107,30 @@ const TargetConfig = (props: any) => {
       });
 
     return targetConfigData.filter((row) => {
+      const rowFinancialYear = normalizeFinancialYear(row.FinancialYear || "");
+      if (
+        normalizedSelectedFinancialYear &&
+        rowFinancialYear !== normalizedSelectedFinancialYear
+      ) {
+        return false;
+      }
+
+      if (!q) return true;
+
       const technology = (row.Technology || "").toLowerCase();
+      const financialYear = (row.FinancialYear || "").toLowerCase();
       const target = String(row.Target ?? "").toLowerCase();
-      if (technology.includes(q) || target.includes(q)) return true;
+      if (
+        technology.includes(q) ||
+        financialYear.includes(q) ||
+        target.includes(q)
+      )
+        return true;
       if (peopleMatch(row.ProjectManager)) return true;
       if (peopleMatch(row.DeliveryHead)) return true;
       return false;
     });
-  }, [targetConfigData, listSearch]);
+  }, [targetConfigData, listSearch, selectedFinancialYear]);
 
   //Use Effect to get Target Configuration Data:
   useEffect(() => {
@@ -122,6 +176,7 @@ const TargetConfig = (props: any) => {
           data.push({
             ID: items.ID || 0,
             Technology: items.Technology || "",
+            FinancialYear: items.FinancialYear || "",
             Target: items.Target || "",
             ProjectManager: _ProjectManager || [],
             DeliveryHead: _DeliveryHead || [],
@@ -129,7 +184,7 @@ const TargetConfig = (props: any) => {
           });
         });
         setTargetConfigData([...data]);
-        getTechnologyChoices();
+        getFieldChoices();
       })
       .catch((error: any) => {
         console.log(error);
@@ -154,50 +209,48 @@ const TargetConfig = (props: any) => {
     }
   };
 
-  //Get Technology Choices function:
-  const getTechnologyChoices = async () => {
-    SPServices.SPGetChoices({
-      Listname: Config.ListNames.TargetConfiguration,
-      FieldName: "Technology",
-    })
-      .then((res: any) => {
-        let temp: any[] = [];
+  //Get Choice column values function:
+  const getFieldChoices = async () => {
+    const fieldNames = ["Technology", "FinancialYear"];
+    try {
+      const response = await Promise.all(
+        fieldNames.map((fieldName) =>
+          SPServices.SPGetChoices({
+            Listname: Config.ListNames.TargetConfiguration,
+            FieldName: fieldName,
+          }),
+        ),
+      );
 
-        if (res?.Choices?.length) {
-          res.Choices.forEach((val: any) => {
-            temp.push({ name: val });
-          });
-        }
-        setTechnologyOptions(temp);
-      })
-      .catch((error: any) => {
-        console.log(error);
+      const nextChoiceOptions: Record<string, { name: string }[]> = {
+        Technology: [],
+        FinancialYear: [],
+      };
+
+      response.forEach((res: any, index: number) => {
+        const fieldName = fieldNames[index];
+        nextChoiceOptions[fieldName] = (res?.Choices || []).map((val: any) => ({
+          name: val,
+        }));
       });
+
+      setFieldChoiceOptions(nextChoiceOptions);
+    } catch (error) {
+      console.log(error);
+      setFieldChoiceOptions({
+        Technology: [],
+        FinancialYear: [],
+      });
+    }
   };
 
   //Render Manager Column function:
-  const renderProjectManagerColumn = (rowData: ITargetConfigurationData) => {
-    const projectManagers: IPeoplePickerDetails[] = rowData?.ProjectManager;
-    return (
-      <div>
-        {rowData?.ProjectManager?.length > 1
-          ? multiPeoplePickerTemplate(projectManagers)
-          : peoplePickerTemplate(projectManagers[0])}
-      </div>
-    );
-  };
+  const renderProjectManagerColumn = (rowData: ITargetConfigurationData) =>
+    peopleColumnTemplate(rowData?.ProjectManager || []);
 
   //Render Delivery Head Column function:
-  const renderDeliveryHeadColumn = (rowData: ITargetConfigurationData) => {
-    const deliveryHead: IPeoplePickerDetails[] = rowData?.DeliveryHead;
-    return (
-      <div>
-        {rowData?.DeliveryHead?.length > 1
-          ? multiPeoplePickerTemplate(deliveryHead)
-          : peoplePickerTemplate(deliveryHead[0])}
-      </div>
-    );
-  };
+  const renderDeliveryHeadColumn = (rowData: ITargetConfigurationData) =>
+    peopleColumnTemplate(rowData?.DeliveryHead || []);
 
   //Render Action Column function:
   const renderActionColumn = (rowData: ITargetConfigurationData) => {
@@ -227,11 +280,17 @@ const TargetConfig = (props: any) => {
 
   //Handle Add Target function:
   const handleAdd = () => {
+    const currentFinancialYear = getCurrentFinancialYearOption(
+      fieldChoiceOptions.FinancialYear,
+    );
     setFormData({
       ...Config.TargetConfigurationData,
+      FinancialYear:
+        currentFinancialYear || fieldChoiceOptions.FinancialYear[0]?.name || "",
     });
     setFormErrors({
       Technology: false,
+      FinancialYear: false,
       Target: false,
       ProjectManager: false,
       DeliveryHead: false,
@@ -244,6 +303,7 @@ const TargetConfig = (props: any) => {
     setFormData({ ...rowData });
     setFormErrors({
       Technology: false,
+      FinancialYear: false,
       Target: false,
       ProjectManager: false,
       DeliveryHead: false,
@@ -281,6 +341,7 @@ const TargetConfig = (props: any) => {
   const handleSave = async () => {
     const validationErrors: IFormErrors = {
       Technology: !formData.Technology?.trim(),
+      FinancialYear: !formData.FinancialYear?.trim(),
       Target: !formData.Target?.trim(),
       ProjectManager: !formData.ProjectManager?.length,
       DeliveryHead: !formData.DeliveryHead?.length,
@@ -294,6 +355,7 @@ const TargetConfig = (props: any) => {
 
     const json: any = {
       Technology: formData.Technology.trim(),
+      FinancialYear: formData.FinancialYear || "",
       Target: formData.Target.trim(),
       ProjectManagerId: {
         results: formData.ProjectManager.map((x) => x.id),
@@ -321,77 +383,10 @@ const TargetConfig = (props: any) => {
     getTargetConfigurationData();
   };
 
-  const suggestionsProps: IBasePickerSuggestionsProps = {
-    suggestionsHeaderText: "Suggested users",
-    noResultsFoundText: "No matching users",
-  };
-
-  const filterSiteUsers = (
-    filterText: string,
-    currentPersonas?: IPersonaProps[],
-  ): IPersonaProps[] => {
-    if (!filterText) return [];
-
-    const selectedKeys = new Set(
-      (currentPersonas || []).map((persona) => String(persona.key || "")),
-    );
-    const normalizedFilter = filterText.toLowerCase();
-
-    return siteUsers.filter((persona) => {
-      const personaKey = String(persona.key || "");
-      const personaName = (persona.text || "").toLowerCase();
-      const personaEmail = (persona.secondaryText || "").toLowerCase();
-
-      return (
-        !selectedKeys.has(personaKey) &&
-        (personaName.indexOf(normalizedFilter) >= 0 ||
-          personaEmail.indexOf(normalizedFilter) >= 0)
-      );
-    });
-  };
-
-  const getTextFromItem = (persona: IPersonaProps): string =>
-    persona.text || "";
-
-  const mapToPersona = (users: IPeoplePickerDetails[]): IPersonaProps[] =>
-    users
-      .map((user) => {
-        const matchingUser = siteUsers.find(
-          (siteUser) =>
-            (siteUser.secondaryText || "").toLowerCase() ===
-            (user.email || "").toLowerCase(),
-        );
-
-        return {
-          key: String(user.id || user.email),
-          text: user.name || matchingUser?.text || user.email || "",
-          secondaryText: user.email || matchingUser?.secondaryText || "",
-        };
-      })
-      .filter((persona) => !!persona.secondaryText);
-
-  const mapPersonaToPeople = (
-    items?: IPersonaProps[],
-  ): IPeoplePickerDetails[] => {
-    if (!Array.isArray(items)) return [];
-
-    return items
-      .map((item) => {
-        const email = item?.secondaryText || "";
-        const matchedSiteUser: any = siteUsers.find(
-          (user) =>
-            (user.secondaryText || "").toLowerCase() === email.toLowerCase(),
-        );
-        const parsedId = Number(matchedSiteUser?.key || item?.key);
-
-        return {
-          id: Number.isNaN(parsedId) ? 0 : parsedId,
-          name: item?.text || "",
-          email,
-        };
-      })
-      .filter((user) => !!user.email);
-  };
+  const financialYearFilterOptions = getFinancialYearFilterOptions(
+    fieldChoiceOptions.FinancialYear,
+    targetConfigData,
+  );
 
   return (
     <div>
@@ -408,6 +403,18 @@ const TargetConfig = (props: any) => {
               placeholder="Search…"
               className={styles.listSearchInput}
               aria-label="Search target configurations"
+            />
+          </div>
+          <div className={styles.financialYearFilter}>
+            <Dropdown
+              value={selectedFinancialYear}
+              options={financialYearFilterOptions}
+              optionLabel="name"
+              optionValue="name"
+              placeholder="Financial Year"
+              className={styles.financialYearDropdown}
+              onChange={(e) => setSelectedFinancialYear(e.value || "")}
+              aria-label="Filter by financial year"
             />
           </div>
           <Button
@@ -427,6 +434,7 @@ const TargetConfig = (props: any) => {
         rows={7}
         emptyMessage="No data found"
       >
+        <Column sortable field="FinancialYear" header="Financial Year"></Column>
         <Column sortable field="Technology" header="Technology"></Column>
         <Column sortable field="Target" header="Target"></Column>
         <Column
@@ -461,10 +469,10 @@ const TargetConfig = (props: any) => {
           <div className={styles.field}>
             <label>Technology</label>
             <Dropdown
-              value={technologyOptions.find(
+              value={fieldChoiceOptions.Technology.find(
                 (x) => x.name === formData.Technology,
               )}
-              options={technologyOptions}
+              options={fieldChoiceOptions.Technology}
               optionLabel="name"
               placeholder="Select Technology"
               onChange={(e) => {
@@ -481,6 +489,37 @@ const TargetConfig = (props: any) => {
             {formErrors.Technology && (
               <span className={styles.requiredText}>
                 Technology is required
+              </span>
+            )}
+          </div>
+
+          {/* Financial Year */}
+          <div className={styles.field}>
+            <label>Financial Year</label>
+            <Dropdown
+              value={fieldChoiceOptions.FinancialYear.find(
+                (x) => x.name === formData.FinancialYear,
+              )}
+              options={fieldChoiceOptions.FinancialYear}
+              optionLabel="name"
+              placeholder="Select Financial Year"
+              onChange={(e) => {
+                const financialYear = e.value?.name || "";
+                setFormData((prev) => ({
+                  ...prev,
+                  FinancialYear: financialYear,
+                }));
+                if (financialYear.trim()) {
+                  setFormErrors((prev) => ({
+                    ...prev,
+                    FinancialYear: false,
+                  }));
+                }
+              }}
+            />
+            {formErrors.FinancialYear && (
+              <span className={styles.requiredText}>
+                Financial Year is required
               </span>
             )}
           </div>
@@ -510,14 +549,19 @@ const TargetConfig = (props: any) => {
           <div className={styles.field}>
             <label>Project Manager</label>
             <NormalPeoplePicker
-              selectedItems={mapToPersona(formData.ProjectManager)}
-              onResolveSuggestions={filterSiteUsers}
+              selectedItems={mapToPersona(formData.ProjectManager, siteUsers)}
+              onResolveSuggestions={(filterText, currentPersonas) =>
+                filterSiteUsers(filterText, currentPersonas, siteUsers)
+              }
               getTextFromItem={getTextFromItem}
-              pickerSuggestionsProps={suggestionsProps}
+              pickerSuggestionsProps={peoplePickerSuggestionsProps}
               itemLimit={1}
               resolveDelay={1000}
               onChange={(items?: IPersonaProps[]) => {
-                const selectedProjectManagers = mapPersonaToPeople(items);
+                const selectedProjectManagers = mapPersonaToPeople(
+                  items,
+                  siteUsers,
+                );
                 setFormData((prev) => ({
                   ...prev,
                   ProjectManager: selectedProjectManagers,
@@ -541,14 +585,19 @@ const TargetConfig = (props: any) => {
           <div className={styles.field}>
             <label>Delivery Head</label>
             <NormalPeoplePicker
-              selectedItems={mapToPersona(formData.DeliveryHead)}
-              onResolveSuggestions={filterSiteUsers}
+              selectedItems={mapToPersona(formData.DeliveryHead, siteUsers)}
+              onResolveSuggestions={(filterText, currentPersonas) =>
+                filterSiteUsers(filterText, currentPersonas, siteUsers)
+              }
               getTextFromItem={getTextFromItem}
-              pickerSuggestionsProps={suggestionsProps}
+              pickerSuggestionsProps={peoplePickerSuggestionsProps}
               itemLimit={1}
               resolveDelay={1000}
               onChange={(items?: IPersonaProps[]) => {
-                const selectedDeliveryHeads = mapPersonaToPeople(items);
+                const selectedDeliveryHeads = mapPersonaToPeople(
+                  items,
+                  siteUsers,
+                );
                 setFormData((prev) => ({
                   ...prev,
                   DeliveryHead: selectedDeliveryHeads,
