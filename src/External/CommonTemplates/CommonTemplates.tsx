@@ -98,7 +98,7 @@ export const getBillingProjectId = (billing: any): number => {
 };
 
 export const formatCurrency = (value: number): string => {
-  return `₹${Math.round(value).toLocaleString("en-IN")}`;
+  return `${Math.round(value).toLocaleString("en-IN")}`;
 };
 
 export const getFinancialYearDateRange = (
@@ -312,7 +312,8 @@ export const mapPersonaToPeople = (
     .map((item) => {
       const email = item?.secondaryText || "";
       const matchedSiteUser: any = siteUsers.find(
-        (user) => (user.secondaryText || "").toLowerCase() === email.toLowerCase(),
+        (user) =>
+          (user.secondaryText || "").toLowerCase() === email.toLowerCase(),
       );
       const parsedId = Number(matchedSiteUser?.key || item?.key);
 
